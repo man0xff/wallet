@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  database:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: gfhjkm-root
+    command: --transaction-isolation=serializable
+    volumes:
+      - type: bind
+        source: ../core/schema.sql
+        target: /docker-entrypoint-initdb.d/00schema.sql
+      - type: bind
+        source: ./database_create_user.sql
+        target: /docker-entrypoint-initdb.d/01user.sql
+      - type: bind
+        source: ../.tmp.home/db
+        target: /var/lib/mysql
+    networks:
+      - example
+  app:
+    image: golang:1.16
+    command: sleep inf
+    working_dir: /x
+    volumes:
+      - type: bind
+        source: ../.
+        target: /x
+    networks:
+      - example
+    ports:
+      - '8089:80'
+networks:
+  example: {}
